@@ -57,6 +57,11 @@ lazy_static::lazy_static! {
     pub static ref ORG: RwLock<String> = RwLock::new("com.carriez".to_owned());
 }
 
+/// Waldfilm: build the incoming-only customer variant "Waldfilm Support" when the
+/// environment variable `WALDFILM_SUPPORT` is set (to any value) at compile time.
+/// Otherwise the full team variant "Waldfilm Remote" is built.
+pub const WALDFILM_SUPPORT: bool = option_env!("WALDFILM_SUPPORT").is_some();
+
 type Size = (i32, i32, i32, i32);
 type KeyPair = (Vec<u8>, Vec<u8>);
 
@@ -69,7 +74,9 @@ lazy_static::lazy_static! {
     static ref ONLINE: Mutex<HashMap<String, i64>> = Default::default();
     pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
     pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
-    pub static ref APP_NAME: RwLock<String> = RwLock::new("WaldfilmRemote".to_owned());
+    pub static ref APP_NAME: RwLock<String> = RwLock::new(
+        if WALDFILM_SUPPORT { "WaldfilmSupport" } else { "WaldfilmRemote" }.to_owned(),
+    );
     static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
     static ref USER_DEFAULT_CONFIG: RwLock<(UserDefaultConfig, Instant)> = RwLock::new((UserDefaultConfig::load(), Instant::now()));
     pub static ref NEW_STORED_PEER_CONFIG: Mutex<HashSet<String>> = Default::default();
